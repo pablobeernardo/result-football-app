@@ -1,69 +1,89 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { Image } from 'expo-image';
-import TeamEntity from './entities/team-entityes';
 import { useEffect, useState } from 'react';
+import GameEntity from './entities/game-entityes';
 
 export default function App() {
-
-  const [teams, setTeam] = useState<TeamEntity[]>([])
+  const [games, setGames] = useState<GameEntity[]>([]);
 
   useEffect(() => {
     var myHeaders = new Headers();
-    myHeaders.append("Authorization", "Bearer test_dd769753f45f74346dbf9e43181a45 ");
+    myHeaders.append('Authorization', 'Bearer test_dd769753f45f74346dbf9e43181a45');
 
     var requestOptions = {
       method: 'GET',
-      headers: myHeaders
+      headers: myHeaders,
     };
 
-    let teamsPosition: TeamEntity[] = [];
+    let gamesList: GameEntity[] = [];
 
-    fetch("https://api.api-futebol.com.br/v1/campeonatos/10/rodadas/1 ", requestOptions)
+    fetch('https://api.api-futebol.com.br/v1/ao-vivo', requestOptions)
       .then(response => response.text())
       .then(result => JSON.parse(result))
       .then(dataJson => {
-        dataJson.map((team) => {
-
-          const dataTeam = {
-            id: team['time']['time_id'],
-            team_shield_url: team['time']['escudo'],
-            team_name: team['time']['nome_popular'],
+        dataJson.map((game: any) => {
+          const dataGame: GameEntity = {
+            partida_id: game['partida_id'],
+            placar: game['placar'],
+            time_mandante: {
+              time_id: game['time_mandante']['time_id'],
+              nome_popular: game['time_mandante']['nome_popular'],
+              sigla: game['time_mandante']['sigla'],
+              escudo: game['time_mandante']['escudo'],
+            },
+            time_visitante: {
+              time_id: game['time_visitante']['time_id'],
+              nome_popular: game['time_visitante']['nome_popular'],
+              sigla: game['time_visitante']['sigla'],
+              escudo: game['time_visitante']['escudo'],
+            },
+            placar_mandante: game['placar_mandante'],
+            placar_visitante: game['placar_visitante'],
           };
 
-          teamsPosition.push(dataTeam);
+          gamesList.push(dataGame);
         });
-        setTeam(teamsPosition);
-        console.log(teamsPosition);
+        setGames(gamesList);
+        console.log(gamesList);
       })
       .catch(error => console.log('error', error));
   }, []);
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.titleChamp}>Campeonato Brasileiro A</Text>
-      <View style={styles.cardGame}>
-        <View>
-          <Image style={{ width: 90, height: 90 }} source={{ uri: 'https://i.pinimg.com/originals/e6/55/50/e65550e3b4c182bf896333250a666837.png' }} />
-          <Text style={styles.nameTeam}>Flamengo</Text>
-        </View>
-        <View>
-          <Text style={styles.result}>2 x 0</Text>
-        </View>
-        <View>
-          <Image style={{ width: 90, height: 90 }} source={{ uri: 'https://i.pinimg.com/originals/e6/55/50/e65550e3b4c182bf896333250a666837.png' }} />
-          <Text style={styles.nameTeam}>Flamengo</Text>
-        </View>
+  const renderGame = ({ item }: { item: GameEntity }) => (
+    <View style={styles.cardGame}>
+      <View>
+        <Image style={{ width: 50, height: 50 }} source={{ uri: item.time_mandante.escudo }} />
+      </View>
+      <View>
+        <Text style={styles.result}>{item.placar}</Text>
+      </View>
+      <View>
+        <Image style={{ width: 50, height: 50 }} source={{ uri: item.time_visitante.escudo }} />
       </View>
     </View>
   );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.titleChamp}>Campeonato Brasileiro A</Text>
+      <FlatList
+        data={games}
+        renderItem={renderGame}
+        keyExtractor={item => item.partida_id.toString()}
+      />
+    </View>
+  );
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
     alignItems: 'center',
+    maxWidth: '100%',
+
 
   },
 
@@ -78,30 +98,21 @@ const styles = StyleSheet.create({
   cardGame: {
     backgroundColor: 'white',
     borderRadius: 15,
-    width: 320,
-    height: 200,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 15,
-    marginTop: 30
+    marginTop: 30,
+    maxWidth: '100%',
 
 
-  },
-
-  nameTeam: {
-    textAlign: 'center',
-    fontWeight: 'bold',
-    marginTop: 7,
   },
 
   result: {
-    fontSize: 25,
     fontWeight: 'bold',
+    padding:9
+    
   }
-
-
-
 
 
 });
