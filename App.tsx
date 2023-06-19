@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList, SafeAreaView } from 'react-native';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import GameEntity from './entities/game-entityes';
@@ -25,6 +25,10 @@ export default function App() {
         dataJson.map((game: any) => {
           const dataGame: GameEntity = {
             partida_id: game['partida_id'],
+            campeonato: {
+              campeonato_nome: game['campeonato']['nome'],
+              campeonato_id: game['campeonato']['campeonato_id'],
+            },
             placar: game['placar'],
             time_mandante: {
               time_id: game['time_mandante']['time_id'],
@@ -51,28 +55,34 @@ export default function App() {
   }, []);
 
   const renderGame = ({ item }: { item: GameEntity }) => (
-    <View style={styles.cardGame}>
-      <View>
-        <Image style={{ width: 50, height: 50 }} source={{ uri: item.time_mandante.escudo }} />
+    <View style={styles.containerChamp}>
+      <Text style={styles.titleChamp}>{item.campeonato.campeonato_nome}</Text>
+      <View style={styles.cardGame}>
+        <View style={styles.cardClub}>
+          <Image style={{ width: 60, height: 60 }} source={{ uri: item.time_mandante.escudo }} />
+          <Text style={styles.itemName}>{item.time_mandante.nome_popular}</Text>
+        </View>
+        <View>
+          <Text style={styles.result}>{item.placar_mandante} : {item.placar_visitante}</Text>
+        </View>
+        <View style={styles.cardClub}>
+          <Image style={{ width: 60, height: 60 }} source={{ uri: item.time_visitante.escudo }} />
+          <Text style={styles.itemName}>{item.time_visitante.nome_popular}</Text>
+        </View>
       </View>
-      <View>
-        <Text style={styles.result}>{item.placar}</Text>
-      </View>
-      <View>
-        <Image style={{ width: 50, height: 50 }} source={{ uri: item.time_visitante.escudo }} />
-      </View>
-    </View>
+    </View> 
   );
 
   return (
+    <SafeAreaView style={{flex:1 , backgroundColor:'#4682B4'}}>
     <View style={styles.container}>
-      <Text style={styles.titleChamp}>Campeonato Brasileiro A</Text>
       <FlatList
         data={games}
         renderItem={renderGame}
         keyExtractor={item => item.partida_id.toString()}
       />
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -80,17 +90,22 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: '#4682B4',
     alignItems: 'center',
     maxWidth: '100%',
 
 
   },
 
+  containerChamp:{
+    marginTop: 20
+  },
+
   titleChamp: {
     color: 'white',
+    textAlign:'center',
     marginTop: 15,
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: '700'
 
   },
@@ -99,19 +114,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 15,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
-    marginTop: 30,
+    marginTop: 20,
     maxWidth: '100%',
+    width: 350,
+    height: 140
 
 
   },
 
+  cardClub:{
+    alignItems: 'center',
+    marginHorizontal: 30,
+  },
+
   result: {
-    fontWeight: 'bold',
-    padding:9
+    fontWeight: '600',
+    padding:9,
+    fontSize: 40,
     
+  },
+
+  itemName:{
+    marginTop: 8,
+    textAlign:'center',
+
   }
 
 
