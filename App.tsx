@@ -53,19 +53,19 @@ export default function App() {
       .catch(error => console.log('error', error));
   }, []);
 
-  const renderGame = ({ item }: { item: GameEntity }) => (
-    <View style={styles.containerChamp}>
-      <Text style={styles.titleChamp}>{item.campeonato.campeonato_nome}</Text>
-      <CardResultComponent item={item} />
-    </View>
-  );
+  
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#4682B4' }}>
       <View style={styles.container}>
         <FlatList
           data={games}
-          renderItem={(renderGame)}
+          renderItem={(dataGame) =>
+            <View style={styles.containerChamp}>
+              <Text style={styles.titleChamp}>{dataGame.item.campeonato.campeonato_nome}</Text>
+              <CardResultComponent item={dataGame.item} />
+            </View>
+          }
           keyExtractor={item => item.partida_id.toString()}
         />
       </View>
