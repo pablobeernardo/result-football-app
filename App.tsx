@@ -1,8 +1,7 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, FlatList, SafeAreaView } from 'react-native';
-import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import GameEntity from './entities/game-entityes';
+import CardResultComponent from './components/card-result-component';
 
 export default function App() {
   const [games, setGames] = useState<GameEntity[]>([]);
@@ -49,7 +48,7 @@ export default function App() {
           gamesList.push(dataGame);
         });
         setGames(gamesList);
-        console.log(gamesList);
+        //console.log(gamesList);
       })
       .catch(error => console.log('error', error));
   }, []);
@@ -57,31 +56,19 @@ export default function App() {
   const renderGame = ({ item }: { item: GameEntity }) => (
     <View style={styles.containerChamp}>
       <Text style={styles.titleChamp}>{item.campeonato.campeonato_nome}</Text>
-      <View style={styles.cardGame}>
-        <View style={styles.cardClub}>
-          <Image style={{ width: 60, height: 60 }} source={{ uri: item.time_mandante.escudo }} />
-          <Text style={styles.itemName}>{item.time_mandante.nome_popular}</Text>
-        </View>
-        <View>
-          <Text style={styles.result}>{item.placar_mandante} : {item.placar_visitante}</Text>
-        </View>
-        <View style={styles.cardClub}>
-          <Image style={{ width: 60, height: 60 }} source={{ uri: item.time_visitante.escudo }} />
-          <Text style={styles.itemName}>{item.time_visitante.nome_popular}</Text>
-        </View>
-      </View>
-    </View> 
+      <CardResultComponent item={item} />
+    </View>
   );
 
   return (
-    <SafeAreaView style={{flex:1 , backgroundColor:'#4682B4'}}>
-    <View style={styles.container}>
-      <FlatList
-        data={games}
-        renderItem={renderGame}
-        keyExtractor={item => item.partida_id.toString()}
-      />
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#4682B4' }}>
+      <View style={styles.container}>
+        <FlatList
+          data={games}
+          renderItem={(renderGame)}
+          keyExtractor={item => item.partida_id.toString()}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -97,51 +84,20 @@ const styles = StyleSheet.create({
 
   },
 
-  containerChamp:{
+  containerChamp: {
     marginTop: 20
   },
 
   titleChamp: {
     color: 'white',
-    textAlign:'center',
+    textAlign: 'center',
     marginTop: 15,
     fontSize: 20,
-    fontWeight: '700'
-
-  },
-
-  cardGame: {
-    backgroundColor: 'white',
-    borderRadius: 15,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 15,
-    marginTop: 20,
-    maxWidth: '100%',
-    width: 350,
-    height: 140
+    fontWeight: '700',
+    opacity: 0.8,
 
 
   },
-
-  cardClub:{
-    alignItems: 'center',
-    marginHorizontal: 30,
-  },
-
-  result: {
-    fontWeight: '600',
-    padding:9,
-    fontSize: 40,
-    
-  },
-
-  itemName:{
-    marginTop: 8,
-    textAlign:'center',
-
-  }
 
 
 });
